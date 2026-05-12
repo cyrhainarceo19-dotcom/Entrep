@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OJT Tracker - My Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="user.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-chart-line"></i>
+            <h2>OJT Tracker</h2>
+        </div>
+        <div class="nav-stats">
+            <div class="stat-item">
+                <i class="fas fa-clock"></i>
+                <span id="totalHours">0</span>
+                <small>Total Hours</small>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-tasks"></i>
+                <span id="totalTasks">0</span>
+                <small>Completed</small>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-calendar-week"></i>
+                <span id="totalDays">0</span>
+                <small>Active Days</small>
+            </div>
+        </div>
+        <div class="nav-user">
+            <span id="userNameDisplay"></span>
+            <button onclick="openOTRequestModal()" class="btn-ot"><i class="fas fa-clock"></i> Request OT</button>
+            <button onclick="showOTRequests()" class="btn-view-ot"><i class="fas fa-list"></i> My OT</button>
+            <button onclick="showSettings()" class="btn-settings"><i class="fas fa-cog"></i></button>
+            <button onclick="logout()" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1><i class="fas fa-user-graduate"></i> Welcome, <span id="userName">Intern</span>!</h1>
+            <button class="btn-add" onclick="openAddTaskModal()">
+                <i class="fas fa-plus"></i> Add Task
+            </button>
+        </div>
+
+        <div id="otWarning" class="ot-warning" style="display:none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>You have pending OT request(s) awaiting approval!</span>
+        </div>
+
+        <div class="table-container">
+            <table id="tasksTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Task Description</th>
+                        <th>Regular Hours</th>
+                        <th>OT Hours</th>
+                        <th>Status</th>
+                        <th>OT Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tasksTableBody">
+                    <tr><td colspan="7" class="loading-text">Loading tasks...</td</tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Task</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="taskForm">
+                <input type="hidden" id="taskId">
+                <div class="form-group">
+                    <label>Date:</label>
+                    <input type="date" id="taskDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Task Description:</label>
+                    <textarea id="taskDescription" rows="3" required placeholder="Describe your task..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Regular Hours (max 8 hrs):</label>
+                    <input type="number" id="taskHours" step="0.5" min="0" max="8" required placeholder="e.g., 8">
+                    <small id="hoursWarning" class="hours-warning"></small>
+                </div>
+                <div class="form-group">
+                    <label>Status:</label>
+                    <select id="taskStatus" required>
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn-submit">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- OT Request Modal -->
+    <div id="otRequestModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-clock"></i> Overtime Request</h2>
+                <span class="close" onclick="closeOTRequestModal()">&times;</span>
+            </div>
+            <form id="otRequestForm">
+                <div class="form-group">
+                    <label><i class="fas fa-calendar"></i> Date of OT:</label>
+                    <input type="date" id="otDate" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-tasks"></i> Task Description:</label>
+                    <textarea id="otDescription" rows="2" required placeholder="What task will you do during OT?"></textarea>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-hourglass-half"></i> OT Hours Requested:</label>
+                    <input type="number" id="otHours" step="0.5" min="0.5" max="2" required placeholder="Max 2 hours">
+                    <small class="ot-limit-warning">Maximum of 2 hours only</small>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-file-alt"></i> Reason for Overtime:</label>
+                    <textarea id="otReason" rows="3" required placeholder="Explain why you need overtime..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeOTRequestModal()">Cancel</button>
+                    <button type="submit" class="btn-submit">Submit OT Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- My OT Requests Modal -->
+    <div id="otRequestsModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2><i class="fas fa-clock"></i> My Overtime Requests</h2>
+                <span class="close" onclick="closeOTRequestsModal()">&times;</span>
+            </div>
+            <div id="otRequestsContent" class="ot-requests-container"></div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Account Settings</h2>
+                <span class="close" onclick="closeSettings()">&times;</span>
+            </div>
+            <div class="settings-info">
+                <p><strong>Name:</strong> <span id="settingsName"></span></p>
+                <p><strong>Email:</strong> <span id="settingsEmail"></span></p>
+                <p><strong>Course:</strong> <span id="settingsCourse"></span></p>
+                <p><strong>School:</strong> <span id="settingsSchool"></span></p>
+                <p><strong>Join Date:</strong> <span id="settingsJoinDate"></span></p>
+            </div>
+            <div class="danger-zone">
+                <h3>Danger Zone</h3>
+                <button onclick="deleteMyAccount()" class="btn-delete-account">
+                    <i class="fas fa-trash-alt"></i> Delete My Account
+                </button>
+                <p class="warning-text">⚠️ This will delete ALL your tasks permanently!</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <script src="common.js"></script>
+    <script src="user.js"></script>
+</body>
+</html>
