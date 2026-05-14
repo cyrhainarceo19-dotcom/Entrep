@@ -1,0 +1,26 @@
+{
+  "name": "entrep",
+  "version": "1.0.0",
+  "description": "",
+  "main": "admin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cyrhainarceo19-dotcom/Entrep.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/cyrhainarceo19-dotcom/Entrep/issues"
+  },
+  "homepage": "https://github.com/cyrhainarceo19-dotcom/Entrep#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.105.4",
+    "pg": "^8.20.0",
+    "ws": "^8.20.1"
+  }
+}
