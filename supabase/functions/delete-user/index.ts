@@ -1,3 +1,4 @@
+// @ts-nocheck — Deno runtime file, not Node.js
 import { serve } from 'std/http/server.ts'
 import { createClient } from '@supabase/supabase-js'
 
