@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "strict": true,
+    "types": [
+      "https://deno.land/x/deno/cli/types/dts/index.d.ts"
+    ]
+  },
+  "importMap": "./import_map.json",
+  "lint": {
+    "include": ["functions/"],
+    "exclude": ["**/*.test.ts"]
+  },
+  "fmt": {
+    "include": ["functions/"],
+    "indentWidth": 2,
+    "semiColons": false,
+    "singleQuote": true
+  }
+}

@@ -1,7 +1,7 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from 'std/http/server.ts'
+import { createClient } from '@supabase/supabase-js'
 
-serve(async (req) => {
+serve(async (req: Request) => {
   const authHeader = req.headers.get('Authorization')
   if (!authHeader?.startsWith('Bearer ')) {
     return new Response('Unauthorized', { status: 401 })
@@ -15,7 +15,6 @@ serve(async (req) => {
     )
   }
 
-  // Validate caller JWT with anon client (never service role here)
   const userClient = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_ANON_KEY')!,
@@ -29,7 +28,6 @@ serve(async (req) => {
     return new Response('Unauthorized', { status: 401 })
   }
 
-  // Verify caller is admin
   const { data: profile } = await userClient
     .from('profiles')
     .select('role')
@@ -40,7 +38,6 @@ serve(async (req) => {
     return new Response('Forbidden', { status: 403 })
   }
 
-  // Self-deletion guard
   if (caller.id === userId) {
     return new Response(
       JSON.stringify({ error: 'Admins cannot delete themselves' }),
@@ -48,7 +45,6 @@ serve(async (req) => {
     )
   }
 
-  // Last-admin guard
   const { count: adminCount } = await userClient
     .from('profiles')
     .select('id', { count: 'exact', head: true })
@@ -61,7 +57,6 @@ serve(async (req) => {
     )
   }
 
-  // Perform deletion with service-role client
   const adminClient = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
