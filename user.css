@@ -462,6 +462,231 @@ tbody tr:hover {
     color: #666;
 }
 
+/* Attendance Card */
+.attendance-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+.attendance-card-header {
+    background: linear-gradient(135deg, #1a3a5c, #2c5a7a);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.attendance-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.attendance-card-title i {
+    font-size: 20px;
+    color: #FFD700;
+}
+
+.attendance-date {
+    font-size: 13px;
+    opacity: 0.85;
+}
+
+.attendance-card-body {
+    padding: 20px;
+}
+
+.attendance-card-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.attendance-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex: 1;
+}
+
+.attendance-status-icon i {
+    font-size: 28px;
+}
+
+.attendance-status-info {
+    flex: 1;
+}
+
+.attendance-status-text {
+    font-weight: 600;
+    color: #1a3a5c;
+    display: block;
+    font-size: 16px;
+}
+
+.attendance-subtext {
+    color: #666;
+    font-size: 12px;
+    margin-top: 2px;
+    display: block;
+}
+
+.attendance-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.attendance-hours {
+    text-align: right;
+}
+
+.attendance-hours span {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    color: #1a3a5c;
+}
+
+.attendance-hours small {
+    color: #666;
+    font-size: 11px;
+    display: block;
+    margin-top: 2px;
+}
+
+.attendance-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-clock-in {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-clock-in:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40,167,69,0.3);
+}
+
+.btn-clock-out {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-clock-out:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220,53,69,0.3);
+}
+
+.elapsed-timer {
+    padding: 8px 14px;
+    background: #fff3cd;
+    border-radius: 8px;
+    color: #856404;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    animation: pulse 2s infinite;
+}
+
+.elapsed-timer i {
+    font-size: 16px;
+}
+
+.elapsed-timer span {
+    font-family: monospace;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Attendance History */
+.attendance-history {
+    margin-top: 30px;
+}
+
+.attendance-history-header {
+    margin-bottom: 15px;
+}
+
+.attendance-history-header h3 {
+    color: white;
+    font-size: 18px;
+}
+
+.attendance-history-header h3 i {
+    color: #FFD700;
+    margin-right: 8px;
+}
+
+.attendance-history-table th {
+    background: linear-gradient(135deg, #1a3a5c, #2c5a7a);
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    font-size: 13px;
+}
+
+.attendance-history-table td {
+    padding: 10px 15px;
+    font-size: 13px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.attendance-history-table tbody tr:hover {
+    background: #f5f5f5;
+}
+
+/* Attendance status badges */
+.status-present {
+    background: #28a745;
+    color: white;
+}
+.status-late {
+    background: #ffc107;
+    color: #856404;
+}
+.status-half-day {
+    background: #17a2b8;
+    color: white;
+}
+.status-absent {
+    background: #dc3545;
+    color: white;
+}
+
 #toastContainer {
     position: fixed;
     bottom: 20px;
@@ -515,5 +740,18 @@ tbody tr:hover {
     }
     .modal-large {
         width: 95%;
+    }
+    .attendance-card-main {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .attendance-right {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .attendance-hours {
+        text-align: left;
     }
 }
