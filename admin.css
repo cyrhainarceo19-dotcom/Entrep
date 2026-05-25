@@ -261,6 +261,47 @@ body {
     background: #f5f5f5;
 }
 
+/* Attendance Filters */
+.attendance-filters {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.attendance-filters .search-box {
+    flex: 1;
+    min-width: 200px;
+}
+
+.date-filter {
+    padding: 10px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.date-filter:focus {
+    outline: none;
+    border-color: #FFD700;
+    box-shadow: 0 0 0 3px rgba(255,215,0,0.1);
+}
+
+.status-select {
+    padding: 5px 8px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    background: white;
+}
+
+.status-select:focus {
+    outline: none;
+    border-color: #FFD700;
+}
+
 /* Status Badge */
 .status-badge {
     padding: 5px 12px;
@@ -286,7 +327,7 @@ body {
 }
 
 /* Action Buttons */
-.btn-view, .btn-delete {
+.btn-view, .btn-delete, .btn-reopen {
     padding: 6px 12px;
     border: none;
     border-radius: 6px;
@@ -306,7 +347,12 @@ body {
     color: white;
 }
 
-.btn-view:hover, .btn-delete:hover {
+.btn-reopen {
+    background: #ffc107;
+    color: #856404;
+}
+
+.btn-view:hover, .btn-delete:hover, .btn-reopen:hover {
     transform: scale(1.05);
 }
 
