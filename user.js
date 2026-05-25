@@ -1,4 +1,6 @@
 let currentProfile = null
+let currentAttendance = null
+let timerInterval = null
 
 document.addEventListener('DOMContentLoaded', async () => {
   const session = await API.getSession()
@@ -21,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const hoursInput = document.getElementById('taskHours')
   if (hoursInput) hoursInput.addEventListener('input', validateRegularHours)
 
-  await loadUserTasks()
+  await Promise.all([loadUserTasks(), loadAttendance()])
 })
 
 function validateRegularHours() {
@@ -354,6 +356,173 @@ function showToast(message, isError = false) {
   setTimeout(() => toast.remove(), 3000)
 }
 
+// ---------------------------------------------------------------------------
+// ATTENDANCE
+// ---------------------------------------------------------------------------
+async function loadAttendance() {
+  try {
+    currentAttendance = await API.getMyAttendance()
+    renderAttendanceCard()
+    loadAttendanceHistory()
+  } catch (err) {
+    showToast('Error loading attendance: ' + err.message, true)
+  }
+}
+
+function formatHoursForDisplay(hours) {
+  if (hours == null || hours === 0) return '0.0 hrs'
+  if (hours < 0.1) return 'Less than 1 min'
+  return hours.toFixed(1) + ' hrs'
+}
+
+function renderAttendanceCard() {
+  const today = new Date()
+  const dateEl = document.getElementById('currentDateDisplay')
+  if (dateEl) {
+    dateEl.textContent = today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+  }
+
+  const statusIcon = document.getElementById('attendanceStatusIcon')
+  const statusText = document.getElementById('attendanceStatusText')
+  const subtext = document.getElementById('attendanceSubtext')
+  const todayHours = document.getElementById('todayHours')
+  const todayHoursLabel = document.getElementById('todayHoursLabel')
+  const hoursBlock = document.getElementById('attendanceHoursBlock')
+  const actions = document.getElementById('attendanceActions')
+  const timer = document.getElementById('elapsedTimer')
+
+  if (!currentAttendance) {
+    if (statusIcon) statusIcon.innerHTML = '<i class="fas fa-circle" style="color: #6c757d;"></i>'
+    if (statusText) statusText.textContent = 'Not Clocked In'
+    if (subtext) subtext.textContent = 'Start your shift for today.'
+    if (todayHours) todayHours.textContent = '0.0 hrs'
+    if (todayHoursLabel) todayHoursLabel.textContent = 'Rendered Today'
+    if (hoursBlock) hoursBlock.style.display = 'block'
+    if (actions) actions.innerHTML = '<button class="btn-clock-in" onclick="clockIn()"><i class="fas fa-sign-in-alt"></i> Time In</button>'
+    if (timer) timer.style.display = 'none'
+  } else if (currentAttendance.time_in && !currentAttendance.time_out) {
+    if (statusIcon) statusIcon.innerHTML = '<i class="fas fa-circle" style="color: #28a745;"></i>'
+    if (statusText) statusText.textContent = 'Clocked In'
+    if (subtext) subtext.textContent = 'Your shift is currently active.'
+    if (hoursBlock) hoursBlock.style.display = 'none'
+    if (actions) actions.innerHTML = '<button class="btn-clock-out" onclick="handleClockOut()"><i class="fas fa-sign-out-alt"></i> Time Out</button>'
+    if (timer) { timer.style.display = 'flex'; startTimer(currentAttendance.time_in) }
+  } else {
+    if (statusIcon) statusIcon.innerHTML = '<i class="fas fa-check-circle" style="color: #28a745;"></i>'
+    if (statusText) statusText.textContent = 'Shift Completed'
+    if (subtext) subtext.textContent = 'Attendance recorded for today.'
+    if (todayHours) todayHours.textContent = formatHoursForDisplay(currentAttendance.hours_rendered)
+    if (todayHoursLabel) todayHoursLabel.textContent = 'Rendered Today'
+    if (hoursBlock) hoursBlock.style.display = 'block'
+    if (actions) actions.innerHTML = ''
+    if (timer) timer.style.display = 'none'
+  }
+}
+
+function startTimer(timeIn) {
+  if (timerInterval) clearInterval(timerInterval)
+  const timeInMs = new Date(timeIn).getTime()
+  timerInterval = setInterval(() => {
+    const diff = Math.max(0, Date.now() - timeInMs)
+    const h = Math.floor(diff / 3600000)
+    const m = Math.floor((diff % 3600000) / 60000)
+    const s = Math.floor((diff % 60000) / 1000)
+    const el = document.getElementById('elapsedTime')
+    if (el) el.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  }, 1000)
+}
+
+async function clockIn() {
+  try {
+    const result = await API.clockIn()
+    showToast('Clocked in!')
+    currentAttendance = result
+    renderAttendanceCard()
+    loadAttendanceHistory()
+  } catch (err) {
+    showToast(err.message, true)
+  }
+}
+
+function handleClockOut() {
+  if (!currentAttendance || !currentAttendance.id || !currentAttendance.time_in) return
+  const timeInMs = new Date(currentAttendance.time_in).getTime()
+  const elapsedMin = (Date.now() - timeInMs) / 60000
+  const under5 = elapsedMin < 5
+
+  const body = document.getElementById('timeOutModalBody')
+  const footer = document.getElementById('timeOutModalFooter')
+  const warning = document.getElementById('timeOutWarning')
+
+  if (body) body.innerHTML = '<p>You are about to time out for today. You will not be able to time in again unless an admin resets your attendance. Continue?</p>'
+
+  if (warning) {
+    warning.style.display = under5 ? 'block' : 'none'
+  }
+
+  if (footer) {
+    footer.innerHTML = `
+      <button class="btn-cancel" onclick="closeTimeOutModal()">Cancel</button>
+      ${under5 ? '<button class="btn-submit btn-warning" onclick="confirmTimeOut()" style="background:#dc3545;color:white">Time Out Anyway</button>'
+               : '<button class="btn-submit" onclick="confirmTimeOut()">Confirm Time Out</button>'}
+    `
+  }
+
+  document.getElementById('timeOutConfirmModal').style.display = 'block'
+}
+
+function closeTimeOutModal() {
+  document.getElementById('timeOutConfirmModal').style.display = 'none'
+}
+
+async function confirmTimeOut() {
+  closeTimeOutModal()
+  if (!currentAttendance || !currentAttendance.id) return
+  try {
+    const result = await API.clockOut(currentAttendance.id)
+    if (timerInterval) clearInterval(timerInterval)
+    showToast(`Clocked out! ${formatHoursForDisplay(result.hours_rendered)}`)
+    currentAttendance = result
+    renderAttendanceCard()
+    loadAttendanceHistory()
+  } catch (err) {
+    showToast(err.message, true)
+  }
+}
+
+async function loadAttendanceHistory() {
+  try {
+    const records = await API.getMyAttendanceHistory()
+    const tbody = document.getElementById('attendanceHistoryBody')
+    if (!tbody) return
+    if (!records || records.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="loading-text">No attendance records yet.</td></tr>'
+      return
+    }
+    tbody.innerHTML = records.slice(0, 10).map(r => `
+      <tr>
+        <td>${formatDate(r.date)}</td>
+        <td>${formatTime(r.time_in)}</td>
+        <td>${r.time_out ? formatTime(r.time_out) : '—'}</td>
+        <td>${r.hours_rendered != null ? r.hours_rendered.toFixed(1) : '—'}</td>
+        <td><span class="status-badge status-${r.status}">${r.status}</span></td>
+      </tr>
+    `).join('')
+  } catch (err) {
+    console.error('Error loading attendance history:', err)
+  }
+}
+
+function formatTime(isoStr) {
+  if (!isoStr) return '—'
+  try { return new Date(isoStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) }
+  catch { return '—' }
+}
+
+window.clockIn = clockIn
+window.handleClockOut = handleClockOut
+window.confirmTimeOut = confirmTimeOut
+window.closeTimeOutModal = closeTimeOutModal
 window.openAddTaskModal = openAddTaskModal
 window.editTask = editTask
 window.deleteTask = deleteTask
