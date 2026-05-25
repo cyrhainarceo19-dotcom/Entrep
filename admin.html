@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OJT Tracker - Admin Panel</title>
+    <title>Employee Tracker - Admin Panel</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="admin.css">
@@ -12,7 +12,7 @@
     <nav class="navbar">
         <div class="nav-brand">
             <i class="fas fa-chart-line"></i>
-            <h2>OJT Admin Panel</h2>
+            <h2>Employee Admin Panel</h2>
         </div>
         <div class="nav-stats">
             <div class="stat-item">
@@ -43,10 +43,13 @@
                 <i class="fas fa-users"></i> User Management
             </button>
             <button class="admin-tab" onclick="showTab('tasks')">
-                <i class="fas fa-tasks"></i> All Student Tasks
+                <i class="fas fa-tasks"></i> All Employee Tasks
             </button>
             <button class="admin-tab" onclick="showTab('ot')">
                 <i class="fas fa-clock"></i> OT Requests
+            </button>
+            <button class="admin-tab" onclick="showTab('attendance')">
+                <i class="fas fa-calendar-check"></i> Attendance
             </button>
             <button class="admin-tab" onclick="showTab('reports')">
                 <i class="fas fa-chart-bar"></i> Reports
@@ -56,9 +59,9 @@
         <!-- Users Tab -->
         <div id="usersTab" class="tab-content active">
             <div class="tab-header">
-                <h2><i class="fas fa-user-graduate"></i> OJT Student Accounts</h2>
+                <h2><i class="fas fa-users"></i> Employee Accounts</h2>
                 <button class="btn-add" onclick="openAddUserModal()">
-                    <i class="fas fa-user-plus"></i> Add New Student
+                    <i class="fas fa-user-plus"></i> Add New Employee
                 </button>
             </div>
             <div class="table-container">
@@ -67,8 +70,8 @@
                         <tr>
                             <th>Name</th>
                             <th>Email</th>
-                            <th>Course</th>
-                            <th>School</th>
+                            <th>Department</th>
+                            <th>Position</th>
                             <th>Total Hours</th>
                             <th>Tasks Done</th>
                             <th>Join Date</th>
@@ -83,17 +86,17 @@
         <!-- Tasks Tab -->
         <div id="tasksTab" class="tab-content">
             <div class="tab-header">
-                <h2><i class="fas fa-list-check"></i> All Student Tasks</h2>
+                <h2><i class="fas fa-list-check"></i> All Employee Tasks</h2>
                 <div class="search-box">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="searchTasks" placeholder="Search by student or task...">
+                    <input type="text" id="searchTasks" placeholder="Search by employee or task...">
                 </div>
             </div>
             <div class="table-container">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Student</th>
+                            <th>Employee</th>
                             <th>Date</th>
                             <th>Task Description</th>
                             <th>Hours</th>
@@ -116,7 +119,7 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Student</th>
+                            <th>Employee</th>
                             <th>Date</th>
                             <th>Task</th>
                             <th>Hours</th>
@@ -131,10 +134,42 @@
             </div>
         </div>
 
+        <!-- Attendance Tab -->
+        <div id="attendanceTab" class="tab-content">
+            <div class="tab-header">
+                <h2><i class="fas fa-calendar-check"></i> Attendance Records</h2>
+                <div class="attendance-filters">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchAttendance" placeholder="Search employee...">
+                    </div>
+                    <input type="date" id="filterAttendanceDate" class="date-filter">
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Date</th>
+                            <th>Time In</th>
+                            <th>Time Out</th>
+                            <th>Hours</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTableBody">
+                        <tr><td colspan="7" class="loading-text">No attendance records found.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- Reports Tab -->
         <div id="reportsTab" class="tab-content">
             <div class="tab-header">
-                <h2><i class="fas fa-chart-simple"></i> OJT Summary Report</h2>
+                <h2><i class="fas fa-chart-simple"></i> Employee Summary Report</h2>
                 <button onclick="exportToCSV()" class="btn-add">
                     <i class="fas fa-download"></i> Export to CSV
                 </button>
@@ -146,7 +181,7 @@
     <div id="userModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="userModalTitle">Add New Student</h2>
+                <h2 id="userModalTitle">Add New Employee</h2>
                 <span class="close" onclick="closeUserModal()">&times;</span>
             </div>
             <form id="userForm">
@@ -154,8 +189,8 @@
                 <div class="form-group"><label>Full Name</label><input type="text" id="userName" required></div>
                 <div class="form-group"><label>Email</label><input type="email" id="userEmail" required></div>
                 <div class="form-group"><label>Password</label><input type="password" id="userPassword" required></div>
-                <div class="form-group"><label>Course</label><input type="text" id="userCourse" required></div>
-                <div class="form-group"><label>School</label><input type="text" id="userSchool" required></div>
+                <div class="form-group"><label>Department</label><input type="text" id="userCourse" required></div>
+                <div class="form-group"><label>Position</label><input type="text" id="userSchool" required></div>
                 <div class="modal-footer"><button type="button" class="btn-cancel" onclick="closeUserModal()">Cancel</button><button type="submit" class="btn-submit">Save</button></div>
             </form>
         </div>
@@ -163,7 +198,7 @@
 
     <div id="viewTasksModal" class="modal">
         <div class="modal-content modal-large">
-            <div class="modal-header"><h2 id="viewTasksTitle">Student Tasks</h2><span class="close" onclick="closeViewTasksModal()">&times;</span></div>
+            <div class="modal-header"><h2 id="viewTasksTitle">Employee Tasks</h2><span class="close" onclick="closeViewTasksModal()">&times;</span></div>
             <div id="viewTasksContent"></div>
         </div>
     </div>
