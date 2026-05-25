@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OJT Tracker - My Dashboard</title>
+    <title>Employee Tracker - My Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="user.css">
@@ -12,7 +12,7 @@
     <nav class="navbar">
         <div class="nav-brand">
             <i class="fas fa-chart-line"></i>
-            <h2>OJT Tracker</h2>
+            <h2>Employee Tracker</h2>
         </div>
         <div class="nav-stats">
             <div class="stat-item">
@@ -42,10 +42,48 @@
 
     <div class="dashboard-container">
         <div class="dashboard-header">
-            <h1><i class="fas fa-user-graduate"></i> Welcome, <span id="userName">Intern</span>!</h1>
+            <h1><i class="fas fa-user-tie"></i> Welcome, <span id="userName">Employee</span>!</h1>
             <button class="btn-add" onclick="openAddTaskModal()">
                 <i class="fas fa-plus"></i> Add Task
             </button>
+        </div>
+
+        <!-- Attendance Card -->
+        <div class="attendance-card">
+            <div class="attendance-card-header">
+                <div class="attendance-card-title">
+                    <i class="fas fa-clock"></i>
+                    <span>Today's Attendance</span>
+                </div>
+                <span id="currentDateDisplay" class="attendance-date"></span>
+            </div>
+            <div class="attendance-card-body">
+                <div class="attendance-card-main">
+                    <div class="attendance-left">
+                        <div class="attendance-status-icon" id="attendanceStatusIcon">
+                            <i class="fas fa-circle" style="color: #6c757d;"></i>
+                        </div>
+                        <div class="attendance-status-info">
+                            <span class="attendance-status-text" id="attendanceStatusText">Not Clocked In</span>
+                            <small class="attendance-subtext" id="attendanceSubtext">Start your shift for today.</small>
+                        </div>
+                    </div>
+                    <div class="attendance-right">
+                        <div class="attendance-hours" id="attendanceHoursBlock">
+                            <span id="todayHours">0.0 hrs</span>
+                            <small id="todayHoursLabel">Rendered Today</small>
+                        </div>
+                        <div class="elapsed-timer" id="elapsedTimer" style="display:none;">
+                            <i class="fas fa-hourglass-half"></i> <span id="elapsedTime">00:00:00</span>
+                        </div>
+                        <div class="attendance-actions" id="attendanceActions">
+                            <button class="btn-clock-in" onclick="clockIn()">
+                                <i class="fas fa-sign-in-alt"></i> Time In
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="otWarning" class="ot-warning" style="display:none;">
@@ -70,6 +108,29 @@
                     <tr><td colspan="7" class="loading-text">Loading tasks...</td</tr>
                 </tbody>
             </table>
+        </div>
+
+        <!-- Attendance History -->
+        <div class="attendance-history">
+            <div class="attendance-history-header">
+                <h3><i class="fas fa-history"></i> Recent Attendance</h3>
+            </div>
+            <div class="table-container">
+                <table class="attendance-history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time In</th>
+                            <th>Time Out</th>
+                            <th>Hours</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceHistoryBody">
+                        <tr><td colspan="5" class="loading-text">No attendance records yet.</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -165,8 +226,8 @@
             <div class="settings-info">
                 <p><strong>Name:</strong> <span id="settingsName"></span></p>
                 <p><strong>Email:</strong> <span id="settingsEmail"></span></p>
-                <p><strong>Course:</strong> <span id="settingsCourse"></span></p>
-                <p><strong>School:</strong> <span id="settingsSchool"></span></p>
+                <p><strong>Department:</strong> <span id="settingsCourse"></span></p>
+                <p><strong>Position:</strong> <span id="settingsSchool"></span></p>
                 <p><strong>Join Date:</strong> <span id="settingsJoinDate"></span></p>
             </div>
             <div class="danger-zone">
@@ -175,6 +236,27 @@
                     <i class="fas fa-trash-alt"></i> Delete My Account
                 </button>
                 <p class="warning-text">⚠️ This will delete ALL your tasks permanently!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Out Confirmation -->
+    <div id="timeOutConfirmModal" class="modal" style="z-index: 10000;">
+        <div class="modal-content" style="max-width: 460px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-clock"></i> Confirm Time Out</h2>
+                <span class="close" onclick="closeTimeOutModal()">&times;</span>
+            </div>
+            <div class="settings-info" id="timeOutModalBody">
+                <p>You are about to time out for today. You will not be able to time in again unless an admin resets your attendance. Continue?</p>
+            </div>
+            <div id="timeOutWarning" class="ot-warning" style="display:none;margin:0 20px 10px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Your attendance session is less than 5 minutes. This may be an accidental time-out.</span>
+            </div>
+            <div class="modal-footer" id="timeOutModalFooter">
+                <button class="btn-cancel" onclick="closeTimeOutModal()">Cancel</button>
+                <button class="btn-submit" onclick="confirmTimeOut()">Confirm Time Out</button>
             </div>
         </div>
     </div>
